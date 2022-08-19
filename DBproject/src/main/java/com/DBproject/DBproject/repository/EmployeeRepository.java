@@ -34,6 +34,22 @@ public class EmployeeRepository {
                 .getResultList();
     }
 
+    public List<Employee> findAllByPage(int page){
+        return em.createNativeQuery(
+                "select *  " +
+                        " from " +
+                            "(select *,ROW_NUMBER() OVER()" +
+                            " from Employee es" +
+                            " order by es.employee_name) e " +
+                        "LIMIT :pageVariable , 5 "
+
+                        ,Employee.class)
+                        .setParameter("pageVariable",page)
+                        .getResultList();
+    }
+
+
+
     public List<Employee> findByEmployeeName(String employee_name){
          List<Employee> jpql=em.createQuery("select e from Employee e where e.employee_name like :name"  , Employee.class)
                 .setParameter("name","%"+employee_name+"%")

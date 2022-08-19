@@ -1,3 +1,20 @@
+<!--
+
+    total_page
+   * page -> 어떤 페이지를 보고있는지?
+   * page group -> 보고 있는 페이지의 그룹이 몇번째 인지? (ex) 한번에 5페이지씩 보여준다 -> 현재페이지 = 3 -> page group =1)
+   * first G page-> 현재 속한 페이지 그룹의 첫번째 페이지는 무엇인가?
+   * last G page -> 현재 속한 페이지 그룹의 마지막 페이지는 무엇인지?
+   * (5 = 한번에 보여줄 페이지의 갯수)
+   * pageCountInDisplay=한번에 보여줄 페이지의 갯수
+
+    1. DB 쿼리 변경
+    2. 컨트롤러 변경
+    3. 프론트 변경
+
+    page
+-->
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:c="http://www.w3.org/1999/XSL/Transform">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
@@ -17,124 +34,91 @@
 
     </style>
 <body>
-<!--    <button type="button" class="btn btn-primary">프로젝트 조회</button>-->
-<!--    <button type="button" class="btn btn-primary">직원 조회</button>-->
-<div class="container">
-    <!--        <ul class="nav nav-tabs">-->
-    <!--            <li class="nav-item">-->
-    <!--                <a class="nav-link active" href="ceo_project.html">프로젝트 조회</a>-->
-    <!--            </li>-->
-    <!--            <li class="nav-item">-->
-    <!--                <a class="nav-link" href="ceo_employee.html">직원 조회</a>-->
-    <!--            </li>-->
-    <!--        </ul>-->
     <div style='width:1000px;margin:0 auto;margin-top:50px;font-size: 15px;'>
-        <h2 style="margin-bottom: 20px;" th:text="|환영합니다 ${ceo.employee_name} 님|"></h2>
-
-        <ul class="nav nav-tabs" >
-            <li class="active" th:if="${clPType==false}"><a class="nav-link"  href="#tabmenu_01"data-toggle="tab">프로젝트 조회</a></li>
-            <li th:if="${clEType}" id="tab1"><a class="nav-link" href="#tabmenu_02" data-toggle="tab" >직원 조회</a></li>
-            <li th:if="${clPType}"  id="tab2"><a class="nav-link"  href="#tabmenu_01"data-toggle="tab">프로젝트 조회</a></li>
-            <li class="active" th:if="${clEType==false}"><a  class="nav-link" href="#tabmenu_02" data-toggle="tab" >직원 조회</a></li>
-        </ul>
-        <div class="tab-content">
-            <div  th:if="${clPType} == false" class="tab-pane in active" th:id="tabmenu_01">
-                <nav class="navbar navbar-light bg-light">
-                    <form class="form-inline" form action="/log/ceo/projectInfo" method="post">
-                        <input class= input-type="text" name="project_name" placeholder="프로젝트 이름 검색" aria-label="Search">
-                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">검색</button>
+            <section class="container">
+                <div class="row">
+                    <h2 class="col-lg-4" style="margin-bottom: 20px;" th:text="|환영합니다 ${ceo.employee_name} 님|"></h2>
+                    <form class="col-lg-2" th:action="@{/logout}" method="post">
+                        <button class=" btn btn-dark btn-md"  type="submit">
+                            로그아웃
+                        </button>
                     </form>
-                    <button class="btn btn-outline-success my-2 my-sm-0" onclick="location.href='/log/ceo'">프로젝트 목록보기</button>
+                </div>
+            </section>
+                <tr th:each="empl : ${employee}" h>
+                    <td th:text="*{empl.getEmployee_name()}"></td>
+
+                </tr>
+
+
+            <section>
+
+            </section>
+
+
+            <section>
+                <nav aria-label="Page navigation example" class ="pages">
+                    <ul id ="paging" class="pagination">
+
+
+                    </ul>
                 </nav>
-                <h1 th:text="|진행중인 프로젝트의 총 예산: ${sum.project_cost} 원|"></h1>
-                <table class="table table-hover"> <!--th:if="${visibility2}"-->
-                    <thead>
-                    <tr>
-                        <th scope="col">프로젝트 아이디</th>
-                        <th scope="col">프로젝트 이름</th>
-                        <!--<th scope="col">투입 사원 번호</th>-->
-                        <th scope="col">고객사</th>
-                        <th scope="col">예산</th>
-                        <th scope="col">시작일자</th>
-                        <th scope="col">종료일자</th>
-                        <th scope="col">진행중/완료</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <!--      프로젝트 검색 전 모든 프로젝트리스트                  -->
-                    <tr th:each="project : ${project}">
-                        <td th:text="*{project.project_id}"></td>
-                        <td th:text="*{project.project_name}"></td>
-                        <td th:text="*{project.ordering_company}"></td>
-                        <td th:text="*{project.project_cost}"></td>
-                        <td th:text="*{project.start_date}"></td>
-                        <td th:text="*{project.end_date}"></td>
-                        <td th:if="*{project.end_date < currentDate}">종료</td>
-                        <td th:if="*{project.end_date >= currentDate}">진행중</td>
-                    </tr>
-                    <!--프로젝트 조회된 결과 -->
-                    <tr th:each="pj : ${projects}">
-                        <td th:text="*{pj.project_id}"></td>
-                        <td th:text="*{pj.project_name}"></td>
-                        <td th:text="*{pj.ordering_company}"></td>
-                        <td th:text="*{pj.project_cost}"></td>
-                        <td th:text="*{pj.start_date}"></td>
-                        <td th:text="*{pj.end_date}"></td>
-                        <td th:if="*{pj.end_date < currentDate}">종료</td>
-                        <td th:if="*{pj.end_date >= currentDate}">진행중</td>
-                        <td>
-                            <a href="#" role="button" class="btn btn-outline-success my-2 my-sm-0"  th:href="@{/worksfor/{id}/list (id=${pj.project_id})}">투입사원 확인하기</a>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-
-                <table class="table table-hover" th:if="${visibility}">
-                    <thead >
-                    <tr>
-                        <th scope="col">투입사원 Id</th>
-                        <th scope="col">투입사원 이름</th>
-                        <th scope="col">투입사원 직무</th>
-                        <th scope="col">투입날짜</th>
-                        <th scope="col">종료날짜</th>
-                        <th scope="col">투입사원 번호</th>
-                        <th scope="col">투입사원 이메일</th>
-                        <th scope="col">최종학력</th>
-
-                    </tr>
-                    </thead>
-                    <tbody >
-                    <tr th:each="searchpj : ${pjInfo}">
-                        <td th:text="*{searchpj.employee.employee_id}"></td>
-                        <td th:text="*{searchpj.employee.employee_name}"></td>
-                        <td th:text="*{searchpj.e_job}"></td>
-                        <td th:text="*{searchpj.e_start_d}"></td>
-                        <td th:text="*{searchpj.e_end_d}"></td>
-                        <td th:text="*{searchpj.employee.phoneNum}"></td>
-                        <td th:text="*{searchpj.employee.email}"></td>
-                        <td th:text="*{searchpj.employee.employee_school}"></td>
-                    </tr>
-
-                    </tbody>
-                </table>
-            </div>
+            </section>
 
 
-
-            <form th:action="@{/logout}" method="post">
-                <button class="w-100 btn btn-dark btn-lg"  type="submit">
-                    로그아웃
-                </button>
-            </form>
-            <div th:replace="fragments/footer :: footer" />
-        </div>
     </div>
-</div>
-adsfdsfsfdfdfs
 
-<script>
-    let userName = "[[${ceo.employee_name}]]"
-    console.log(userName)
+<nav aria-label="Page navigation example" class ="pages">
+    <ul class="pagination">
+
+
+    </ul>
+</nav>
+
+
+<div th:replace="fragments/footer :: footer" />
+
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    let url = new URL("http://localhost:8080/log/ceo?page=")
+    let page = ([[${page}]]==null)? 1 : [[${page}]]
+    console.log(page);
+    console.log([[${totalPage}]])
+
+    let total_page = [[${totalPage}]];
+    let paging = document.getElementById("paging");
+
+    paging.addEventListener("click",pagination)
+
+     function setPage(){
+         console.log("fewfwefweffw")
+         this.page = page;
+     }
+
+    function pagination () {
+        let pageCountInDisplay =(total_page < 5 ? total_page : 5);
+
+        let pageGroup = Math.ceil(page/pageCountInDisplay)
+
+        let lastGPage = pageGroup * pageCountInDisplay
+
+        let firstGPage = lastGPage-(pageCountInDisplay-1)
+
+        let pageHtml = ``;
+
+        console.log(page);
+        for(let i = firstGPage; i <= lastGPage; i++){
+            pageHtml+=`<li class="page-item ${page == i ? "active" : ""}"><a class="page-link" href="${url+i}"  >${i}</a></li>`
+        }
+
+        paging.innerHTML = pageHtml;
+    }
+
+
+    pagination()
+
+    /*]]*/
 </script>
 
 </body>

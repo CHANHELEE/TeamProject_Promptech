@@ -6,6 +6,8 @@ import com.DBproject.DBproject.domain.Employee;
 import com.DBproject.DBproject.domain.Project;
 import com.DBproject.DBproject.domain.Works_for;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -16,17 +18,39 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Controller
+@Slf4j
 @RequiredArgsConstructor
 public class CeoController {
 
     // 조회는 service 거치지 않고 바로 repository 로 접근해서 출력만 해주는 형식이 깔끔합니다
     private final EmployeeRepository employeeRepository;
     private final ProjectRepository projectRepository;
-    private  final com.DBproject.DBproject.Service.ProjectService projectService;
+    private final com.DBproject.DBproject.Service.ProjectService projectService;
 
     // ceo 전용 마이페이지
     @GetMapping("/log/ceo")
-    public String goCEOPage(Model model,@SessionAttribute(name = SessionConstants.LoginMember, required = false)  Employee loginMember){
+    public String goCEOPage(
+            Model model,
+            @SessionAttribute(name = SessionConstants.LoginMember, required = false)  Employee loginMember,
+            @RequestParam(value = "page" , required = false) Integer page){
+
+//        int pageGroup = 0;
+//        int lastGPage = 0;
+        int pageVariable = 0 ;
+        if(page == null){
+            pageVariable = pageVariable;
+        }else{
+//            pageGroup = (int)Math.ceil((double)page/5);
+//            pageVariable = (pageGroup==1 ? pageGroup-1 : pageGroup*5-5) ;
+            pageVariable = (page==1 ? page-1 : page*5-5);
+        }
+        log.error("pageVariable = {}",pageVariable);
+        List<Employee> findAllEmByPage = employeeRepository.findAllByPage(pageVariable);
+        model.addAttribute("employee",findAllEmByPage);
+        model.addAttribute("totalPage",Math.ceil((double)employeeRepository.findAll().size()/5));
+        log.error("page = {}",page);
+         model.addAttribute("page",page);
+
         List<Employee> employeeList=employeeRepository.findAll();
         List<Works_for> projectWorkingList=projectRepository.findDoingProjectsInfoAll();
         List<Project> projects=projectRepository.findAll();
